@@ -1,0 +1,41 @@
+/*
+ * Copyright © 2001-2020 HealthEdge Software, Inc. All Rights Reserved.
+ *
+ * This software is proprietary information of HealthEdge Software, Inc.
+ * and may not be reproduced or redistributed for any purpose.
+ */
+
+package com.jai.shippingservice.aggregates;
+
+import com.jai.ecomm.commands.CreateShippingCommand;
+import com.jai.ecomm.events.OrderShippedEvent;
+import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateIdentifier;
+import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.spring.stereotype.Aggregate;
+
+@Aggregate
+public class ShippingAggregate {
+
+    @AggregateIdentifier
+    private String shippingId;
+
+    private String orderId;
+
+    private String paymentId;
+
+    public ShippingAggregate() {
+    }
+
+    @CommandHandler
+    public ShippingAggregate(CreateShippingCommand createShippingCommand){
+        AggregateLifecycle.apply(new OrderShippedEvent(createShippingCommand.shippingId, createShippingCommand.orderId, createShippingCommand.paymentId));
+    }
+
+    @EventSourcingHandler
+    protected void on(OrderShippedEvent orderShippedEvent){
+        this.shippingId = orderShippedEvent.shippingId;
+        this.orderId = orderShippedEvent.orderId;
+    }
+}
